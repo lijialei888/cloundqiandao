@@ -1,92 +1,4 @@
 name: Cloud189Checkin
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  schedule:
-    - cron: 0 2,14 * * *
-jobs
-  check-in:
-    runs-on: ubuntu-latest
-
-​
-15
-    steps:
-16
-    - uses: actions/checkout@v2
-17
-​
-18
-    - name: Install Python
-19
-      run: |
-20
-        sudo apt update && \
-21
-        sudo apt install python3
-22
-      
-23
-    - name: requirements
-24
-      run: |
-25
-        pip3 install -r requirements.txt
-26
-        
-27
-    - name: Checkin
-28
-      run: |
-29
-        user='${{ secrets.USER }}'
-30
-        pwd='${{ secrets.PWD }}'
-31
-        
-32
-        user_list=()
-33
-        pwd_list=()
-34
-​
-35
-        IFS=","
-36
-​
-37
-        for u in ${user[*]}
-38
-        do
-39
-        user_list[${#user_list[*]}]=${u}
-40
-        done
-41
-​
-42
-        for p in ${pwd[*]}
-43
-        do
-44
-        pwd_list[${#pwd_list[*]}]=${p}
-45
-        done
-46
-​
-47
-        user_num=${#user_list[*]}
-48
-        pwd_num=${#pwd_list[*]}
-49
-​
-50
-        if [ $user_num != $pwd_num ];then
-51
-        echo "账号和密码个数不对应"
-52
-ame: Cloud189Checkin
 
 on:
   push:
@@ -101,11 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v
+    - uses: actions/checkout@v2
+
     - name: Install Python
       run: |
         sudo apt update && \
-        sudo apt install python      
+        sudo apt install python3
+      
     - name: requirements
       run: |
         pip3 install -r requirements.txt
@@ -117,28 +31,23 @@ jobs:
         
         user_list=()
         pwd_list=()
-
         IFS=","
-
         for u in ${user[*]}
         do
         user_list[${#user_list[*]}]=${u}
         done
-
         for p in ${pwd[*]}
         do
         pwd_list[${#pwd_list[*]}]=${p}
         done
-
         user_num=${#user_list[*]}
         pwd_num=${#pwd_list[*]}
-
         if [ $user_num != $pwd_num ];then
         echo "账号和密码个数不对应"
-        exit         else
+        exit 1
+        else
         echo "共有 $user_num 个账号，即将开始签到"
         fi
-
         for ((i=0;i<$user_num;i++))
         do
         python3 checkin.py --username ${user_list[$i]} --password ${pwd_list[$i]}
