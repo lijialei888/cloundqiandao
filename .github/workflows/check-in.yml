@@ -7,7 +7,7 @@ on:
     branches: [ master ]
   schedule:
     - cron: 0 2,14 * * *
-
+    
 jobs:
   check-in:
     runs-on: ubuntu-latest
