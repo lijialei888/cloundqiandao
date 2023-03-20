@@ -1,29 +1,15 @@
 name: Cloud189Checkin
-2
-​
-3
 on:
-4
   push:
-5
     branches: [ master ]
-6
   pull_request:
-7
     branches: [ master ]
-8
   schedule:
-9
     - cron: 0 2,14 * * *
-10
-​
-11
-jobs:
-12
+jobs
   check-in:
-13
     runs-on: ubuntu-latest
-14
+
 ​
 15
     steps:
@@ -100,20 +86,61 @@ jobs:
 51
         echo "账号和密码个数不对应"
 52
-        exit 1
-53
-        else
-54
-        echo "共有 $user_num 个账号，即将开始签到"
-55
-        fi
-56
-​
-57
-        for ((i=0;i<$user_num;i++))
-58
+ame: Cloud189Checkin
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: 0 2,14 * * *
+
+jobs:
+  check-in:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v
+    - name: Install Python
+      run: |
+        sudo apt update && \
+        sudo apt install python      
+    - name: requirements
+      run: |
+        pip3 install -r requirements.txt
+        
+    - name: Checkin
+      run: |
+        user='${{ secrets.USER }}'
+        pwd='${{ secrets.PWD }}'
+        
+        user_list=()
+        pwd_list=()
+
+        IFS=","
+
+        for u in ${user[*]}
         do
-59
-        python3 checkin.py --username ${user_list[$i]} --password ${pwd_list[$i]}
-60
+        user_list[${#user_list[*]}]=${u}
         done
+
+        for p in ${pwd[*]}
+        do
+        pwd_list[${#pwd_list[*]}]=${p}
+        done
+
+        user_num=${#user_list[*]}
+        pwd_num=${#pwd_list[*]}
+
+        if [ $user_num != $pwd_num ];then
+        echo "账号和密码个数不对应"
+        exit         else
+        echo "共有 $user_num 个账号，即将开始签到"
+        fi
+
+        for ((i=0;i<$user_num;i++))
+        do
+        python3 checkin.py --username ${user_list[$i]} --password ${pwd_list[$i]}
+        done
+
